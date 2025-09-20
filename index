@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOTE TRIASE IGD RSUD KL</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.datatables.net/v/bs5/dt-1.13.1/datatables.min.css"/>
+  <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.3.1/css/fixedHeader.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.bootstrap5.min.css">
+  
+  <!-- Tambahkan CSS khusus DataTable -->
+<style>
+  /* Style header tabel */
+  table.dataTable thead th {
+    background: #5483ca;
+    color: #fff;
+    text-align: center;
+    font-weight: 600;
+    padding: 12px;
+  }
+
+  /* Body tabel */
+  table.dataTable tbody td {
+    vertical-align: middle;
+    padding: 10px;
+  }
+
+  /* Hover row */
+  table.dataTable tbody tr:hover {
+    background-color: #e9f5f2 !important;
+  }
+
+  /* Responsive - child row style */
+  table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
+  table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+    background-color: #5483ca;
+  }
+
+  /* Agar tombol aksi rapih */
+  .btn-group .btn {
+    margin: 2px;
+  }
+
+  /* Judul utama */
+  h3.text-center {
+    font-weight: 700;
+    font-size: 28px;
+    color: #2d6a4f;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* Garis dekorasi di bawah judul */
+  h3.text-center::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #40916c;
+    margin: 8px auto 0;
+    border-radius: 2px;
+  }
+
+  /* Teks waktu */
+  #waktuSekarang {
+    font-size: 16px;
+    font-weight: 500;
+    color: #555;
+    background: #f8f9fa;
+    padding: 6px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+</style>
+
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <br>
+        <h3 class="text-center my-4">Note Triase IGD RSKL</h3>
+        <p class="text-center my-4" id="waktuSekarang"> </p>
+        
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary mb-3" id="tambahPasien">
+          + Tambah Pasien
+        </button>
+
+        <table id="data-IGD" class="table table-striped table-bordered nowrap" style="width: 100%">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nama Pasien</th>
+              <th>Catatan</th>
+              <th>Rencana</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h4 class="modal-title">Tambah Pasien</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <form id="formPasien">
+            <input type="hidden" class="form-control" id="idPasien">
+            <div class="mb-3">
+              <label class="col-form-label">Nama Pasien <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="namaPasien" required>
+            </div>
+            <div class="mb-3">
+              <label class="col-form-label">Catatan (Keluhan, RPD, RPO, TTV pasien) <span class="text-danger">*</span></label>
+              <textarea class="form-control" id="catatan" rows="6" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="col-form-label">Rencana</label>
+              <textarea class="form-control" id="rencana" rows="2"></textarea>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-warning" id="simpanPasien">Simpan Data</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/v/bs5/dt-1.13.1/datatables.min.js"></script>
+  <script src="https://cdn.datatables.net/fixedheader/3.3.1/js/dataTables.fixedHeader.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      const BASE_URL = "https://script.google.com/macros/s/AKfycbwrtBHwjpS9Ise8WIyZthtneG7Px_4YQCLTt-7Hb4mJtYILCJ6GKIZ29DhIlGhsoIYNVg/exec"; 
+
+      const table = $("#data-IGD").DataTable({
+      ajax: BASE_URL + "?action=get-product",
+      columns: [
+        { data: "id" },
+        { data: "nama" },
+        { data: "catatan" },
+        { data: "rencana" },
+        {
+          data: null,
+          orderable: false,
+          render: function () {
+            return `
+              <div class="btn-group">
+                <button class="btn btn-warning btn-sm edit">Edit</button>
+                <button class="btn btn-danger btn-sm hapus">Hapus</button>
+              </div>
+            `;
+          }
+        }
+      ],
+      rowId: "id",
+      responsive: true,
+      columnDefs: [
+        { responsivePriority: 1, targets: 1 }, // Nama Pasien selalu tampil
+        { responsivePriority: 2, targets: 2 }, // Catatan selalu tampil
+        { responsivePriority: 3, targets: -1 }, // Aksi lebih diprioritaskan
+        { responsivePriority: 10001, targets: 0 }, // ID bisa disembunyikan
+        { responsivePriority: 10002, targets: 3 }  // Rencana bisa disembunyikan
+      ]
+      });
+
+      // Edit Pasien
+      $('#data-IGD tbody').on('click', 'button.edit', function () {
+        const tr = $(this).closest('tr');
+        const row = table.row(tr.hasClass('child') ? tr.prev() : tr);
+        const data = row.data();
+
+        $('#idPasien').val(data.id);
+        $('#namaPasien').val(data.nama);
+        $('#catatan').val(data.catatan);
+        $('#rencana').val(data.rencana);
+        $('#myModal .modal-title').text('Edit Pasien');
+        $('#myModal').modal('show');
+      });
+
+      // Reset modal title saat ditutup
+      $('#myModal').on('hidden.bs.modal', () => {
+        $('#formPasien')[0].reset();
+        $('#idPasien').val('');
+        $('#myModal .modal-title').text('Tambah Pasien');
+      });
+
+      // Tambah Pasien
+      $('#tambahPasien').on('click', () => {
+        $('#formPasien')[0].reset();
+        $('#idPasien').val('');
+        $('#myModal').modal('show');
+      });
+
+      // Simpan Pasien
+      $('#simpanPasien').on('click', () => {
+        const idPasien = $('#idPasien').val();
+        const namaPasien = $('#namaPasien').val().trim();
+        const catatan = $('#catatan').val().trim();
+        const rencana = $('#rencana').val().trim();
+
+        if (!namaPasien || !catatan) {
+          swal("Gagal!", "Harap lengkapi kolom yang dibintangi ya !", "error");
+          return;
+        }
+
+        let apiURL = "";
+        if (idPasien) {
+          apiURL = `${BASE_URL}?action=update&id=${idPasien}&nama=${encodeURIComponent(namaPasien)}&catatan=${encodeURIComponent(catatan)}&rencana=${encodeURIComponent(rencana)}`;
+        } else {
+          apiURL = `${BASE_URL}?action=insert&nama=${encodeURIComponent(namaPasien)}&catatan=${encodeURIComponent(catatan)}&rencana=${encodeURIComponent(rencana)}`;
+        }
+
+        $.getJSON(apiURL, function (result) {
+          if (result.success) {
+            swal("Sukses!", result.message, "success");
+            $('#myModal').modal('hide');
+            table.ajax.reload();
+          } else {
+            swal("Error!", result.message, "error");
+          }
+        }).fail(() => {
+          swal("Error!", "Gagal menghubungi server.", "error");
+        });
+      });
+
+      // Hapus Pasien
+      $('#data-IGD tbody').on('click', 'button.hapus', function () {
+        const tr = $(this).closest('tr');
+        const row = table.row(tr.hasClass('child') ? tr.prev() : tr);
+        const data = row.data();
+
+        if (confirm(`Hapus pasien ${data.nama}?`)) {
+          const apiURL = `${BASE_URL}?action=delete&id=${data.id}`;
+          $.getJSON(apiURL, function (result) {
+            alert(result.message);
+            table.ajax.reload();
+          });
+        }
+      });
+    });
+
+    // === Time Update ===
+    function updateWaktu() {
+      const now = new Date();
+      const tanggal = now.toLocaleDateString('id-ID', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      const pad = (n) => String(n).padStart(2, '0');
+      const jam = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+      document.getElementById("waktuSekarang").innerHTML = `${tanggal} , ${jam} WIB`;
+    }
+
+    updateWaktu();
+    setInterval(updateWaktu, 1000);
+  </script>
+</body>
+<footer>
+  <div>
+      <br>
+      <p class="text-center my-4">&copy; <script type='text/javascript'>var creditsyear = new Date();document.write(creditsyear.getFullYear());</script><br>Created by M Yudhi Akbar</p>
+    </div>
+</footer>
+</html>
