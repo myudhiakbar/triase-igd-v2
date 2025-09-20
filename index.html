@@ -208,7 +208,11 @@
         { data: "nama" },
         { data: "catatan" },
         { data: "rencana" },
-        { data: "timestamp" },
+        { data: "timestamp",
+          render: function (data) {
+            return formatTimestampSingkat(data);
+          }
+        },
         {
           data: null,
           orderable: false,
@@ -327,6 +331,23 @@
 
     updateWaktu();
     setInterval(updateWaktu, 1000);
+
+    // === Formatter Timestamp Singkat ===
+    function formatTimestampSingkat(data) {
+      if (!data) return "-";
+      const date = new Date(data);
+
+      const pad = (n) => String(n).padStart(2, "0");
+      const tgl = pad(date.getDate());
+      const bln = pad(date.getMonth() + 1);
+      const thn = date.getFullYear();
+
+      const jam = pad(date.getHours());
+      const menit = pad(date.getMinutes());
+      const detik = pad(date.getSeconds());
+
+      return `${tgl}-${bln}-${thn} ${jam}:${menit}:${detik} WIB`;
+    }
   </script>
 </body>
 <footer>
