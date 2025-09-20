@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.bootstrap5.min.css">
   
   <!-- Tambahkan CSS khusus DataTable -->
-<style>
+  <style>
   /* Style header tabel */
   table.dataTable thead th {
     background: #5483ca;
@@ -43,6 +43,48 @@
   /* Agar tombol aksi rapih */
   .btn-group .btn {
     margin: 2px;
+  }
+
+  /* Kolom Nama Pasien rata tengah */
+  #data-IGD td:nth-child(2),
+  #data-IGD th:nth-child(2) {
+    text-align: center;
+  }
+
+  /* Kolom Catatan wrap text */
+  #data-IGD td:nth-child(3) {
+    white-space: normal !important;
+    word-wrap: break-word;
+    word-break: break-word;
+    max-width: 300px; /* batasi lebar agar rapih di desktop */
+  }
+
+  /* Saat layar kecil, Catatan agar full width */
+  @media (max-width: 768px) {
+    #data-IGD td:nth-child(3) {
+      max-width: 100% !important;
+      display: block;
+      text-align: left;
+    }
+  }
+
+  /* Catatan tetap wrap di mode child-row (saat kolom hide) */
+  table.dataTable.dtr-inline.collapsed tbody td .dtr-details {
+    white-space: normal !important;
+    word-break: break-word;
+    word-wrap: break-word;
+    text-align: left;
+  }
+
+  table.dataTable.dtr-inline.collapsed tbody td .dtr-details li {
+    white-space: normal !important;
+    word-break: break-word;
+    word-wrap: break-word;
+    margin-bottom: 4px;
+  }
+
+  button.hapus {
+  display: none !important;
   }
 
   /* Judul utama */
@@ -76,7 +118,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   }
-</style>
+  </style>
 
 </head>
 <body>
@@ -98,7 +140,8 @@
               <th>ID</th>
               <th>Nama Pasien</th>
               <th>Catatan</th>
-              <th>Rencana</th>
+              <th>Rencana / Plan</th>
+              <th>Timestamp</th>
               <th>Aksi</th>
             </tr>
           </thead>
@@ -120,16 +163,19 @@
         <div class="modal-body">
           <form id="formPasien">
             <input type="hidden" class="form-control" id="idPasien">
+            
             <div class="mb-3">
               <label class="col-form-label">Nama Pasien <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="namaPasien" required>
             </div>
+
             <div class="mb-3">
               <label class="col-form-label">Catatan (Keluhan, RPD, RPO, TTV pasien) <span class="text-danger">*</span></label>
               <textarea class="form-control" id="catatan" rows="6" required></textarea>
             </div>
+
             <div class="mb-3">
-              <label class="col-form-label">Rencana</label>
+              <label class="col-form-label">Rencana / Plan</label>
               <textarea class="form-control" id="rencana" rows="2"></textarea>
             </div>
           </form>
@@ -162,6 +208,7 @@
         { data: "nama" },
         { data: "catatan" },
         { data: "rencana" },
+        { data: "timestamp" },
         {
           data: null,
           orderable: false,
@@ -180,7 +227,7 @@
       columnDefs: [
         { responsivePriority: 1, targets: 1 }, // Nama Pasien selalu tampil
         { responsivePriority: 2, targets: 2 }, // Catatan selalu tampil
-        { responsivePriority: 3, targets: -1 }, // Aksi lebih diprioritaskan
+        { responsivePriority: 3, targets: 0 }, // Aksi lebih diprioritaskan
         { responsivePriority: 10001, targets: 0 }, // ID bisa disembunyikan
         { responsivePriority: 10002, targets: 3 }  // Rencana bisa disembunyikan
       ]
@@ -288,4 +335,4 @@
       <p class="text-center my-4">&copy; <script type='text/javascript'>var creditsyear = new Date();document.write(creditsyear.getFullYear());</script><br>Created by M Yudhi Akbar</p>
     </div>
 </footer>
-</html>
+</html>>
