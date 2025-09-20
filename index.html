@@ -34,38 +34,19 @@
     background-color: #e9f5f2 !important;
   }
 
-  /* Responsive - child row style */
-  table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
-  table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
-    background-color: #5483ca;
-  }
-
-  /* Agar tombol aksi rapih */
-  .btn-group .btn {
-    margin: 2px;
-  }
-
-  /* Kolom Nama Pasien rata tengah */
+  /* Kolom ID, Nama Pasien, dan Timestamp rata tengah */
+  #data-IGD td:nth-child(1),
+  #data-IGD th:nth-child(1), /* ID */
   #data-IGD td:nth-child(2),
-  #data-IGD th:nth-child(2) {
+  #data-IGD th:nth-child(2), /* Nama Pasien */
+  #data-IGD td:nth-child(4),
+  #data-IGD th:nth-child(4),  /* Catatan */
+  #data-IGD td:nth-child(5),
+  #data-IGD th:nth-child(5),  /* Timestamp */
+  #data-IGD td:nth-child(6),
+  #data-IGD th:nth-child(6)  /* Aksi */
+  {
     text-align: center;
-  }
-
-  /* Kolom Catatan wrap text */
-  #data-IGD td:nth-child(3) {
-    white-space: normal !important;
-    word-wrap: break-word;
-    word-break: break-word;
-    max-width: 300px; /* batasi lebar agar rapih di desktop */
-  }
-
-  /* Saat layar kecil, Catatan agar full width */
-  @media (max-width: 768px) {
-    #data-IGD td:nth-child(3) {
-      max-width: 100% !important;
-      display: block;
-      text-align: left;
-    }
   }
 
   /* Catatan tetap wrap di mode child-row (saat kolom hide) */
@@ -75,17 +56,25 @@
     word-wrap: break-word;
     text-align: left;
   }
-
   table.dataTable.dtr-inline.collapsed tbody td .dtr-details li {
-    white-space: normal !important;
-    word-break: break-word;
-    word-wrap: break-word;
     margin-bottom: 4px;
   }
 
-  button.hapus {
-  display: true !important;
+  /* Catatan sesuai enter dan spasi */
+  #data-IGD td:nth-child(3) {
+  white-space: pre-wrap !important; /* agar enter & spasi ikut ditampilkan */
+  word-break: break-word;
+  max-width: 300px;
   }
+
+  /* Agar tombol aksi rapih */
+  .btn-group .btn {
+    margin: 2px;
+  }
+
+  /*   button.hapus {
+  display: true !important;
+  } */
 
   /* Judul utama */
   h3.text-center {
@@ -118,9 +107,24 @@
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   }
-  </style>
 
+  /* Responsive - child row style */
+  table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
+  table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+    background-color: #5483ca;
+  }
+
+  /* Saat layar kecil, Catatan agar full width */
+  @media (max-width: 768px) {
+    #data-IGD td:nth-child(3) {
+      max-width: 100% !important;
+      display: block;
+      text-align: left;
+    }
+  }
+  </style>
 </head>
+  
 <body>
   <div class="container">
     <div class="row">
@@ -133,7 +137,9 @@
         <button type="button" class="btn btn-primary mb-3" id="tambahPasien">
           + Tambah Pasien
         </button>
-
+        <!-- <button type="button" class="btn btn-danger mb-3" id="hapusMassal">
+          Hapus Terpilih
+        </button> -->
         <table id="data-IGD" class="table table-striped table-bordered nowrap" style="width: 100%">
           <thead>
             <tr>
@@ -162,8 +168,11 @@
 
         <div class="modal-body">
           <form id="formPasien">
+            <div class="mb-3">
+              <input type="text" class="form-control" id="waktuForm" readonly>
+            </div>
+
             <input type="hidden" class="form-control" id="idPasien">
-            
             <div class="mb-3">
               <label class="col-form-label">Nama Pasien <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="namaPasien" required>
@@ -224,16 +233,23 @@
               </div>
             `;
           }
-        }
+        },
       ],
       rowId: "id",
-      responsive: true,
+      responsive: {
+        breakpoints: [
+          { name: 'desktop', width: Infinity },
+          { name: 'tablet',  width: 1024 },
+          { name: 'mobile',  width: 768 }
+        ]
+      },
       columnDefs: [
-        { responsivePriority: 1, targets: 1 }, // Nama Pasien selalu tampil
-        { responsivePriority: 2, targets: 2 }, // Catatan selalu tampil
-        { responsivePriority: 3, targets: 0 }, // Aksi lebih diprioritaskan
-        { responsivePriority: 10001, targets: 0 }, // ID bisa disembunyikan
-        { responsivePriority: 10002, targets: 3 }  // Rencana bisa disembunyikan
+        { targets: 0, className: "desktop" },   // ID hanya tampil di desktop
+        { responsivePriority: 1, targets: 1 },  // Nama wajib tampil
+        { responsivePriority: 2, targets: 2 },  // Catatan wajib tampil
+        { targets: 3, className: "desktop" },  // Rencana bisa disembunyikan
+        { targets: 4, className: "desktop" },  // Timestamp bisa disembunyikan
+        { targets: 5, className: "desktop" }   // Aksi bisa disembunyikan
       ]
       });
 
@@ -266,27 +282,49 @@
       });
 
       // Simpan Pasien
-      $('#simpanPasien').on('click', () => {
+      $('#simpanPasien').on('click', function () {
+        const $btn = $(this); // simpan referensi tombol
         const idPasien = $('#idPasien').val();
         const namaPasien = $('#namaPasien').val().trim();
         const catatan = $('#catatan').val().trim();
         const rencana = $('#rencana').val().trim();
-
+      
         if (!namaPasien || !catatan) {
-          swal("Gagal!", "Harap lengkapi kolom yang dibintangi ya !", "error");
+          swal("Gagal!", "Mohon lengkapi kolom yang dibintangi ya !", "error");
           return;
         }
-
+      
+        // 🔹 Ubah tombol jadi loading
+        $btn.prop("disabled", true).html(
+          `<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...`
+        );
+      
+        // 🔹 Tampilkan pesan loading swal
+        swal({
+          title: "Menyimpan...",
+          text: "Mohon tunggu sebentar",
+          buttons: false,
+          closeOnClickOutside: false,
+          closeOnEsc: false,
+          icon: "info"
+        });
+      
         let apiURL = "";
         if (idPasien) {
           apiURL = `${BASE_URL}?action=update&id=${idPasien}&nama=${encodeURIComponent(namaPasien)}&catatan=${encodeURIComponent(catatan)}&rencana=${encodeURIComponent(rencana)}`;
         } else {
           apiURL = `${BASE_URL}?action=insert&nama=${encodeURIComponent(namaPasien)}&catatan=${encodeURIComponent(catatan)}&rencana=${encodeURIComponent(rencana)}`;
         }
-
+      
         $.getJSON(apiURL, function (result) {
           if (result.success) {
-            swal("Sukses!", result.message, "success");
+            swal({
+              title: "Sukses!",
+              text: result.message,
+              icon: "success",
+              buttons: false,     // 🔹 hilangkan tombol OK
+              timer: 1500         // 🔹 auto-close setelah 1.5 detik
+            });
             $('#myModal').modal('hide');
             table.ajax.reload();
           } else {
@@ -294,6 +332,9 @@
           }
         }).fail(() => {
           swal("Error!", "Gagal menghubungi server.", "error");
+        }).always(() => {
+          // 🔹 Reset tombol kembali normal
+          $btn.prop("disabled", false).text("Simpan Data");
         });
       });
 
@@ -322,13 +363,20 @@
         month: 'long',
         day: 'numeric'
       });
-
+    
       const pad = (n) => String(n).padStart(2, '0');
       const jam = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-
-      document.getElementById("waktuSekarang").innerHTML = `${tanggal} , ${jam} WIB`;
+      const fullText = `${tanggal} , ${jam} WIB`;
+    
+      // Update teks header
+      document.getElementById("waktuSekarang").innerHTML = fullText;
+    
+      // Kalau modal sedang terbuka, update juga ke form
+      if ($('#myModal').hasClass('show')) {
+        $('#waktuForm').val(fullText);
+      }
     }
-
+    
     updateWaktu();
     setInterval(updateWaktu, 1000);
 
@@ -339,21 +387,21 @@
 
       const pad = (n) => String(n).padStart(2, "0");
       const tgl = pad(date.getDate());
-      const bln = pad(date.getMonth() + 1);
+      const bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+                 "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+      const bln = bulan[date.getMonth()];
       const thn = date.getFullYear();
 
       const jam = pad(date.getHours());
       const menit = pad(date.getMinutes());
       const detik = pad(date.getSeconds());
 
-      return `${tgl}-${bln}-${thn} ${jam}:${menit}:${detik} WIB`;
+      return `${tgl} ${bln} ${thn} , ${jam}:${menit} WIB`;
     }
   </script>
-</body>
-<footer>
-  <div>
-      <br>
-      <p class="text-center my-4">&copy; <script type='text/javascript'>var creditsyear = new Date();document.write(creditsyear.getFullYear());</script><br>Created by M Yudhi Akbar</p>
-    </div>
+
+<footer class="text-center my-4">
+  <p>&copy; <script>document.write(new Date().getFullYear());</script><br>Created by M Yudhi Akbar</p>
 </footer>
+</body>
 </html>
