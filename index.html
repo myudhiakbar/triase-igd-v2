@@ -40,7 +40,7 @@
   #data-IGD td:nth-child(2),
   #data-IGD th:nth-child(2), /* Nama Pasien */
   #data-IGD td:nth-child(4),
-  #data-IGD th:nth-child(4),  /* Catatan */
+  #data-IGD th:nth-child(4),  /* Rencana */
   #data-IGD td:nth-child(5),
   #data-IGD th:nth-child(5),  /* Timestamp */
   #data-IGD td:nth-child(6),
@@ -138,7 +138,7 @@
           + Tambah Pasien
         </button>
         <!-- <button type="button" class="btn btn-danger mb-3" id="hapusMassal">
-          Hapus Terpilih
+          🗑 Hapus Terpilih
         </button> -->
         <table id="data-IGD" class="table table-striped table-bordered nowrap" style="width: 100%">
           <thead>
@@ -149,6 +149,7 @@
               <th>Rencana / Plan</th>
               <th>Timestamp</th>
               <th>Aksi</th>
+              <!-- <th><input type="checkbox" id="pilihSemua"></th> -->
             </tr>
           </thead>
         </table>
@@ -210,6 +211,31 @@
     $(document).ready(function () {
       const BASE_URL = "https://script.google.com/macros/s/AKfycbwrtBHwjpS9Ise8WIyZthtneG7Px_4YQCLTt-7Hb4mJtYILCJ6GKIZ29DhIlGhsoIYNVg/exec"; 
 
+      // ✅ Pilih Semua
+      $('#pilihSemua').on('click', function () {
+        $('.pilihRow').prop('checked', this.checked);
+      });
+
+      // 🔹 Awal tombol hapus massal disabled
+      $('#hapusMassal').prop('disabled', true);
+      
+      // 🔹 Cek perubahan pada checkbox per baris
+      $('#data-IGD tbody').on('change', '.pilihRow', function () {
+        toggleHapusMassal();
+      });
+      
+      // 🔹 Cek perubahan pada checkbox pilih semua
+      $('#pilihSemua').on('change', function () {
+        $('#data-IGD tbody .pilihRow').prop('checked', this.checked);
+        toggleHapusMassal();
+      });
+      
+      // 🔹 Fungsi aktif/nonaktif tombol hapus massal
+      function toggleHapusMassal() {
+        const adaYangDipilih = $('#data-IGD tbody .pilihRow:checked').length > 0;
+        $('#hapusMassal').prop('disabled', !adaYangDipilih);
+      }
+      
       const table = $("#data-IGD").DataTable({
       ajax: BASE_URL + "?action=get-product",
       columns: [
@@ -234,6 +260,13 @@
             `;
           }
         },
+        // {
+        //   data: "id",
+        //   orderable: false,
+        //   render: function (id) {
+        //     return `<input type="checkbox" class="pilihRow" value="${id}">`;
+        //   }
+        // },
       ],
       rowId: "id",
       responsive: {
@@ -250,6 +283,7 @@
         { targets: 3, className: "desktop" },  // Rencana bisa disembunyikan
         { targets: 4, className: "desktop" },  // Timestamp bisa disembunyikan
         { targets: 5, className: "desktop" }   // Aksi bisa disembunyikan
+        // { responsivePriority: 6, targets: 6 },  // Checkbox bisa disembunyikan
       ]
       });
 
@@ -290,10 +324,16 @@
         const rencana = $('#rencana').val().trim();
       
         if (!namaPasien || !catatan) {
-          swal("Gagal!", "Mohon lengkapi kolom yang dibintangi ya !", "error");
+          swal({
+            title: "Gagal!",
+            text: "Mohon lengkapi kolom yang dibintangi ya!",
+            icon: "error",
+            buttons: false,   // 🔹 Hilangkan tombol OK
+            timer: 2000       // 🔹 Auto close dalam 2 detik
+          });
           return;
         }
-      
+
         // 🔹 Ubah tombol jadi loading
         $btn.prop("disabled", true).html(
           `<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...`
@@ -328,10 +368,22 @@
             $('#myModal').modal('hide');
             table.ajax.reload();
           } else {
-            swal("Error!", result.message, "error");
+            swal({
+              title: "Gagal!",
+              text: result.message,
+              icon: "error",
+              buttons: false,
+              timer: 2000
+            });
           }
         }).fail(() => {
-          swal("Error!", "Gagal menghubungi server.", "error");
+          swal({
+            title: "Error!",
+            text: "Gagal menghubungi server.",
+            icon: "error",
+            buttons: false,
+            timer: 2000
+          });
         }).always(() => {
           // 🔹 Reset tombol kembali normal
           $btn.prop("disabled", false).text("Simpan Data");
@@ -349,6 +401,58 @@
           $.getJSON(apiURL, function (result) {
             alert(result.message);
             table.ajax.reload();
+          });
+        }
+      });
+    });
+
+    // ✅ Hapus Massal
+    $('#hapusMassal').on('click', function () {
+      const ids = $('.pilihRow:checked').map(function () {
+        return $(this).val();
+      }).get();
+    
+      if (ids.length === 0) {
+        swal({
+          title: "Peringatan!",
+          text: "Tidak ada data yang dipilih.",
+          icon: "warning",
+          buttons: false,
+          timer: 2000
+        });
+        return;
+      }
+    
+      swal({
+        title: `Hapus ${ids.length} pasien terpilih?`,
+        text: "Data yang sudah dihapus tidak bisa dikembalikan!",
+        icon: "warning",
+        buttons: ["Batal", "Ya, Hapus"],
+        dangerMode: true
+      }).then((willDelete) => {
+        if (willDelete) {
+          let promises = ids.map(id => {
+            const apiURL = `${BASE_URL}?action=delete&id=${id}`;
+            return $.getJSON(apiURL);
+          });
+    
+          Promise.all(promises).then(() => {
+            swal({
+              title: "Berhasil!",
+              text: `${ids.length} pasien berhasil dihapus.`,
+              icon: "success",
+              buttons: false,
+              timer: 1500
+            });
+            table.ajax.reload();
+          }).catch(() => {
+            swal({
+              title: "Error!",
+              text: "Gagal menghapus data.",
+              icon: "error",
+              buttons: false,
+              timer: 2000
+            });
           });
         }
       });
