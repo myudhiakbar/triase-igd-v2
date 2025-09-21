@@ -1,0 +1,117 @@
+/* === DataTables Custom Style === */
+
+/* Style header tabel */
+  table.dataTable thead th {
+    background: #5483ca;
+    color: #fff;
+    text-align: center;
+    font-weight: 600;
+    padding: 12px;
+  }
+
+  /* Body tabel */
+  table.dataTable tbody td {
+    vertical-align: middle;
+    padding: 10px;
+  }
+
+  /* 🔹 Baris dengan Rencana terisi */
+  .row-rencana-isi {
+    background-color: #baffa7 !important; /* hijau muda */
+  }
+
+  /* Hover row */
+  table.dataTable tbody tr:hover {
+    background-color: #f9d9d9 !important;
+  }
+
+  /* Kolom ID, Nama Pasien, dan Timestamp rata tengah */
+  #data-IGD td:nth-child(1),
+  #data-IGD th:nth-child(1), /* ID */
+  #data-IGD td:nth-child(2),
+  #data-IGD th:nth-child(2), /* Nama Pasien */
+  #data-IGD td:nth-child(4),
+  #data-IGD th:nth-child(4),  /* Rencana */
+  #data-IGD td:nth-child(5),
+  #data-IGD th:nth-child(5),  /* Timestamp */
+  #data-IGD td:nth-child(6),
+  #data-IGD th:nth-child(6)  /* Aksi */
+  {
+    text-align: center;
+  }
+
+    /* Isi table sesuai enter dan spasi */
+  #data-IGD td:nth-child(2),
+  #data-IGD td:nth-child(3),
+  #data-IGD td:nth-child(4) {
+  white-space: pre-wrap !important; /* agar enter & spasi ikut ditampilkan */
+  word-break: break-word;
+  max-width: 300px;
+  }
+
+  /* Isi table tetap wrap di mode child-row (saat kolom hide) */
+  table.dataTable.dtr-inline.collapsed tbody td .dtr-details li:has(span.dtr-data) {
+    white-space: pre-wrap !important;
+    word-break: break-word;
+    text-align: left;
+  }
+  table.dataTable.dtr-inline.collapsed tbody td .dtr-details li {
+    margin-bottom: 4px;
+  }
+
+  /* Responsive - child row style */
+  table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
+  table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+    background-color: #5483ca;
+  }
+
+  /* Agar tombol aksi rapih */
+  .btn-group .btn {
+    margin: 2px;
+  }
+
+  /*   button.hapus {
+  display: true !important;
+  } */
+
+  /* Judul utama */
+  h3.text-center {
+    font-weight: 700;
+    font-size: 28px;
+    color: #eb2828;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+   /* Garis dekorasi di bawah judul */
+  h3.text-center::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #000000;
+    margin: 8px auto 0;
+    border-radius: 2pversix;
+  }
+
+  /* Teks waktu */
+  #waktuSekarang {
+    font-size: 16px;
+    font-weight: 500;
+    color: #555;
+    background: #f8f9fa;
+    padding: 6px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Saat layar kecil, Catatan agar full width */
+  @media (max-width: 768px) {
+  #data-IGD td:nth-child(3) 
+    {
+    max-width: 100% !important;
+    display: block;
+    text-align: left;
+    }
+  }
