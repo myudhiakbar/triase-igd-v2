@@ -61,7 +61,9 @@
   }
 
   /* Catatan sesuai enter dan spasi */
-  #data-IGD td:nth-child(3) {
+  #data-IGD td:nth-child(2),
+  #data-IGD td:nth-child(3),
+  #data-IGD td:nth-child(4) {
   white-space: pre-wrap !important; /* agar enter & spasi ikut ditampilkan */
   word-break: break-word;
   max-width: 300px;
@@ -86,7 +88,13 @@
     margin-bottom: 10px;
   }
 
-  /* Garis dekorasi di bawah judul */
+  /* Responsive - child row style */
+  table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
+  table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+    background-color: #5483ca;
+  }
+
+   /* Garis dekorasi di bawah judul */
   h3.text-center::after {
     content: "";
     display: block;
@@ -108,19 +116,14 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   }
 
-  /* Responsive - child row style */
-  table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before,
-  table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
-    background-color: #5483ca;
-  }
-
   /* Saat layar kecil, Catatan agar full width */
   @media (max-width: 768px) {
-    #data-IGD td:nth-child(3) {
+    table.dataTable.dtr-inline.collapsed tbody td .dtr-details {
       max-width: 100% !important;
-      display: block;
+      display: grid;
+      grid-template-columns: 30% 70%;
       text-align: left;
-    }
+      }
   }
   </style>
 </head>
@@ -194,7 +197,6 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-warning" id="simpanPasien">Simpan Data</button>
         </div>
-
       </div>
     </div>
   </div>
