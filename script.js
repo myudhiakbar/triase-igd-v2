@@ -1,6 +1,6 @@
     // ✅ Set default global DataTables
     $.extend(true, $.fn.dataTable.defaults, {
-      order: [[4, "desc"]] // urutkan kolom ke-5 (Timestamp) DESC
+      order: [[0, "desc"]] // urutkan kolom ke-1 DESC
     });
 
     // === Helper SweetAlert ===
