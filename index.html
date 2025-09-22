@@ -14,12 +14,14 @@
   <link rel="stylesheet" href="style.css">
   
 </head>
-  
+
 <body>
   <div class="container">
     <div class="row">
       <div class="col-12">
         <br>
+        <p class="text-center">
+          &copy; <script>document.write(new Date().getFullYear());</script> | Created by M Yudhi Akbar</p>
         <h3 class="text-center my-4">Note Triase IGD RSKL</h3>
         <p class="text-center my-4" id="waktuSekarang"> </p>
         
@@ -77,7 +79,7 @@
             <!-- Field Rencana & Status (hidden) -->
             <div class="mb-3 d-none" id="fieldRencana">
               <label class="col-form-label">Rencana / Plan</label>
-              <textarea class="form-control" id="rencana" rows="2"></textarea>
+              <textarea class="form-control" id="rencana" rows="3"></textarea>
             </div>
 
             <div class="mb-3 d-none" id="fieldStatus">
@@ -104,9 +106,5 @@
   <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.min.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   <script src="script.js"></script>
-
-<footer class="text-center my-4">
-  <p>&copy; <script>document.write(new Date().getFullYear());</script><br>Created by M Yudhi Akbar</p>
-</footer>
 </body>
 </html>
