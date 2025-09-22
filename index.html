@@ -12,7 +12,6 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.3.1/css/fixedHeader.bootstrap5.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.0/css/responsive.bootstrap5.min.css">
   <link rel="stylesheet" href="style.css">
-  
 </head>
 
 <body>
@@ -20,10 +19,11 @@
     <div class="row">
       <div class="col-12">
         <br>
-        <p class="text-center">
-          &copy; <script>document.write(new Date().getFullYear());</script> | Created by M Yudhi Akbar</p>
         <h3 class="text-center my-4">Note Triase IGD RSKL</h3>
-        <p class="text-center my-4" id="waktuSekarang"> </p>
+        <div class="text-center my-4">
+          <span id="waktuSekarang"></span>
+        </div>
+        <br>
         
         <!-- Button trigger modal -->
         <div class="text-center">
@@ -48,6 +48,11 @@
       </div>
     </div>
   </div>
+  <br>
+  <footer>
+    <p class="footer-text text-center">
+      &copy; <script>document.write(new Date().getFullYear());</script> | Created by <strong>M Yudhi Akbar</strong></p>
+  </footer>
 
   <!-- Modal -->
   <div class="modal fade" id="myModal" tabindex="-1">
@@ -106,5 +111,6 @@
   <script src="https://cdn.datatables.net/responsive/2.4.0/js/dataTables.responsive.min.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   <script src="script.js"></script>
+  
 </body>
 </html>
