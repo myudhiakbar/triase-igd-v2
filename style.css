@@ -1,4 +1,85 @@
+/* Struktur dasar biar footer sticky */
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Konten utama */
+  .container {
+    flex: 1 0 auto;
+    display: block;
+    padding-bottom: clamp(20px, 5vw, 40px); 
+    /* min 20px, max 40px, auto responsif sesuai layar */
+  }
+
+  /* Footer styling */
+  footer {
+    flex-shrink: 0;
+    background-color: #212529; /* dark modern */
+    color: #f8f9fa;
+    border-top: 1px solid #343a40;
+    padding: 15px 0; /* padding-bottom 15px */
+    text-align: center;
+  }
+
+  /* Teks footer responsif */
+  .footer-text {
+    font-size: clamp(15px, 2vw, 16px);
+    color: #f8f9fa;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .footer-text strong {
+    font-weight: 600;
+    font-size: clamp(15px, 2vw, 16px);
+  }
+
+   /* Judul utama */
+  h3.text-center {
+    font-weight: 700;
+    font-size: clamp(28px, 2.5vw, 32px);
+    color: #eb2828;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding-bottom: 8px;
+  }
+
+   /* Garis dekorasi di bawah judul */
+  h3.text-center::after {
+    content: "";
+    display: block;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #1a73e8, #42a5f5);
+    margin: 10px auto 0;
+    border-radius: 2px;
+    transition: width 0.3s ease-in-out;
+  }
+
+  h3.text-center:hover::after {
+  width: 120px;
+  }
+
+  /* Teks waktu */
+  #waktuSekarang {
+    font-size: 16px;
+    font-weight: 500;
+    color: #555;
+    background: #f8f9fa;
+    padding: 6px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+
 /* === DataTables Custom Style === */
+
 /* Style header tabel */
   table.dataTable thead th {
     background: #5483ca;
@@ -14,7 +95,7 @@
     padding: 10px;
   }
 
-  /* 🔹 Kondisi Baris berubah warna */
+  /* Kondisi Baris berubah warna */
   .row-rencana-isi {
     background-color: #caf8ca !important; /* hijau muda */
   }
@@ -76,38 +157,6 @@
   /*   button.hapus {
   display: true !important;
   } */
-
-  /* Judul utama */
-  h3.text-center {
-    font-weight: 700;
-    font-size: 28px;
-    color: #eb2828;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-   /* Garis dekorasi di bawah judul */
-  h3.text-center::after {
-    content: "";
-    display: block;
-    width: 60px;
-    height: 3px;
-    background: #000000;
-    margin: 8px auto 0;
-    border-radius: 2pversix;
-  }
-
-  /* Teks waktu */
-  #waktuSekarang {
-    font-size: 16px;
-    font-weight: 500;
-    color: #555;
-    background: #f8f9fa;
-    padding: 6px 12px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  }
 
   /* Saat layar kecil, Catatan agar full width */
   @media (max-width: 768px) {
