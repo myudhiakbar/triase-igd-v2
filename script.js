@@ -1,5 +1,4 @@
-    
-    // JAVASCRIPT
+    // JS HTML TO SPREADSHEET
     $(document).ready(function () {
       const BASE_URL = "https://script.google.com/macros/s/AKfycbwrtBHwjpS9Ise8WIyZthtneG7Px_4YQCLTt-7Hb4mJtYILCJ6GKIZ29DhIlGhsoIYNVg/exec";
       
@@ -52,6 +51,8 @@
           { name: 'mobile',  width: 768 }
         ]
       },
+
+      pageLength: 6, // tampilkan 6 data per halaman
 
       columnDefs: [
         { targets: 0, className: "desktop" },   // ID hanya tampil di desktop
