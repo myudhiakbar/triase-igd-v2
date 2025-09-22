@@ -37,7 +37,9 @@
   #data-IGD td:nth-child(5),
   #data-IGD th:nth-child(5),  /* Timestamp */
   #data-IGD td:nth-child(6),
-  #data-IGD th:nth-child(6)  /* Aksi */
+  #data-IGD th:nth-child(6),  /* Status */
+  #data-IGD td:nth-child(7),
+  #data-IGD th:nth-child(7)  /* Aksi */
   {
     text-align: center;
   }
