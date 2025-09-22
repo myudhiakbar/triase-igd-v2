@@ -1,7 +1,30 @@
+    // ✅ Set default global DataTables
+    $.extend(true, $.fn.dataTable.defaults, {
+      order: [[4, "desc"]] // urutkan kolom ke-5 (Timestamp) DESC
+    });
+
+    // === Helper SweetAlert ===
+    function showSwal(type, title, text, duration = 2000) {
+      const icons = {
+        success: "success",
+        error: "error",
+        warning: "warning",
+        info: "info"
+      };
+
+      return swal({
+        title: title,
+        text: text,
+        icon: icons[type] || "info",
+        buttons: false,
+        timer: duration
+      });
+    }
+    
     // JS HTML TO SPREADSHEET
     $(document).ready(function () {
       const BASE_URL = "https://script.google.com/macros/s/AKfycbwrtBHwjpS9Ise8WIyZthtneG7Px_4YQCLTt-7Hb4mJtYILCJ6GKIZ29DhIlGhsoIYNVg/exec";
-      
+
       const table = $("#data-IGD").DataTable({
       ajax: BASE_URL + "?action=get-pasien",
       columns: [
@@ -46,7 +69,7 @@
 
       responsive: {
         breakpoints: [
-          { name: 'desktop', width: Infinity },
+          { name: "desktop", width: 1200 },
           { name: 'tablet',  width: 1024 },
           { name: 'mobile',  width: 768 }
         ]
@@ -55,13 +78,13 @@
       pageLength: 6, // tampilkan 6 data per halaman
 
       columnDefs: [
-        { targets: 0, className: "desktop" },   // ID hanya tampil di desktop
+        { targets: 0, className: "desktop" },   // ID tampil di desktop
         { responsivePriority: 1, targets: 1 },  // Nama wajib tampil
         { responsivePriority: 2, targets: 2 },  // Catatan wajib tampil
-        { targets: 3, className: "desktop" },  // Rencana bisa disembunyikan
-        { targets: 4, className: "desktop" },  // Timestamp bisa disembunyikan
-        { targets: 5, className: "desktop" },  // Status bisa disembunyikan
-        { targets: 6, className: "desktop" }   // Aksi bisa disembunyikan
+        { targets: 3, className: "desktop" },  // Rencana
+        { targets: 4, className: "desktop" },  // Timestamp
+        { targets: 5, className: "desktop" },  // Status
+        { targets: 6, className: "desktop" }   // Aksi
       ],
     });
 
@@ -85,6 +108,7 @@
       $('#myModal').on('hidden.bs.modal', () => {
         $('#formPasien')[0].reset();
         $('#idPasien').val('');
+        $('#waktuForm').val(''); // reset waktuForm
         $('#myModal .modal-title').text('Tambah Pasien');
         $("#fieldRencana, #fieldStatus").addClass("d-none"); // ikut reset
       });
@@ -108,22 +132,16 @@
         const status = $('#status').val().trim();
       
         if (!namaPasien || !catatan) {
-          swal({
-            title: "Gagal!",
-            text: "Mohon lengkapi kolom yang dibintangi ya!",
-            icon: "error",
-            buttons: false,   // 🔹 Hilangkan tombol OK
-            timer: 2000       // 🔹 Auto close dalam 2 detik
-          });
+          showSwal("error", "Gagal!", "Mohon lengkapi kolom yang dibintangi ya!");
           return;
         }
 
-        // 🔹 Ubah tombol jadi loading
+        // Ubah tombol jadi loading
         $btn.prop("disabled", true).html(
           `<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...`
         );
       
-        // 🔹 Tampilkan pesan loading swal
+        // Tampilkan pesan loading swal
         swal({
           title: "Menyimpan...",
           text: "Mohon tunggu sebentar",
@@ -133,45 +151,36 @@
           icon: "info"
         });
       
-        let apiURL = "";
-        if (idPasien) {
-          apiURL = `${BASE_URL}?action=update&id=${idPasien}&nama=${encodeURIComponent(namaPasien)}&catatan=${encodeURIComponent(catatan)}&rencana=${encodeURIComponent(rencana)}&status=${encodeURIComponent(status)}`;
-        } else {
-          apiURL = `${BASE_URL}?action=insert&nama=${encodeURIComponent(namaPasien)}&catatan=${encodeURIComponent(catatan)}&rencana=${encodeURIComponent(rencana)}&status=${encodeURIComponent(status)}`;
-        }
-      
-        $.getJSON(apiURL, function (result) {
-          if (result.success) {
-            swal({
-              title: "Sukses!",
-              text: result.message,
-              icon: "success",
-              buttons: false,
-              timer: 1500
-            });
-            $('#myModal').modal('hide');
-            table.ajax.reload();
-          } else {
-            swal({
-              title: "Gagal!",
-              text: result.message,
-              icon: "error",
-              buttons: false,
-              timer: 2000
-            });
-          }
-        }).fail(() => {
-          swal({
-            title: "Error!",
-            text: "Gagal menghubungi server.",
-            icon: "error",
-            buttons: false,
-            timer: 2000
+        const action = idPasien ? "update" : "insert";
+        const payload = {
+          id: idPasien,
+          nama: namaPasien,
+          catatan: catatan,
+          rencana: rencana,
+          status: status
+        };
+
+        $.ajax({
+          url: `${BASE_URL}?action=${action}`,
+          type: "GET",
+          data: payload,
+          dataType: "json"
+        })
+          .done((result) => {
+            if (result.success) {
+              showSwal("success", "Sukses!", result.message, 1500);
+              $('#myModal').modal('hide');
+              table.ajax.reload();
+            } else {
+              showSwal("error", "Gagal!", result.message);
+            }
+          })
+          .fail(() => {
+            showSwal("error", "Error!", "Gagal menghubungi server.");
+          })
+          .always(() => {
+            $btn.prop("disabled", false).html("Simpan Data");
           });
-        }).always(() => {
-          // 🔹 Reset tombol kembali normal
-          $btn.prop("disabled", false).text("Simpan Data");
-        });
       });
 
       // Hapus Pasien
@@ -188,44 +197,27 @@
         dangerMode: true
       }).then((willDelete) => {
         if (willDelete) {
-          const apiURL = `${BASE_URL}?action=delete&id=${data.id}`;
-          $.getJSON(apiURL, function (result) {
-            if (result.success) {
-              swal({
-                title: "Sukses!",
-                text: result.message,
-                icon: "success",
-                buttons: false,
-                timer: 1500
-              });
-              table.ajax.reload();
-            } else {
-              swal({
-                title: "Gagal!",
-                text: result.message,
-                icon: "error",
-                buttons: false,
-                timer: 2000
-              });
-            }
-          }).fail(() => {
-            swal({
-              title: "Error!",
-              text: "Gagal menghubungi server.",
-              icon: "error",
-              buttons: false,
-              timer: 2000
+          $.ajax({
+            url: `${BASE_URL}?action=delete`,
+            type: "GET",
+            data: { id: data.id },
+            dataType: "json"
+          })
+            .done((result) => {
+              if (result.success) {
+                showSwal("success", "Sukses!", result.message, 1500);
+                table.ajax.reload();
+              } else {
+                showSwal("error", "Gagal!", result.message);
+              }
+            })
+            .fail(() => {
+              showSwal("error", "Error!", "Gagal menghubungi server.");
             });
-          });
         }
       });
     });
     });
-
-    // ✅ Set default global DataTables
-      $.extend(true, $.fn.dataTable.defaults, {
-        order: [[4, "desc"]] // urutkan kolom ke-5 (Timestamp) DESC
-      });
 
     // === Time Update ===
     function updateWaktu() {
