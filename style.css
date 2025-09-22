@@ -15,14 +15,18 @@
     padding: 10px;
   }
 
-  /* 🔹 Baris dengan Rencana terisi */
+  /* 🔹 Kondisi Baris berubah warna */
   .row-rencana-isi {
-    background-color: #baffa7 !important; /* hijau muda */
+    background-color: #caf8ca !important; /* hijau muda */
+  }
+
+  .row-status-batal {
+  background-color: #ffe6e6 !important;
   }
 
   /* Hover row */
   table.dataTable tbody tr:hover {
-    background-color: #f9d9d9 !important;
+    background-color: #e9f5f2 !important;
   }
 
   /* Kolom ID, Nama Pasien, dan Timestamp rata tengah */
@@ -30,8 +34,6 @@
   #data-IGD th:nth-child(1), /* ID */
   #data-IGD td:nth-child(2),
   #data-IGD th:nth-child(2), /* Nama Pasien */
-  #data-IGD td:nth-child(4),
-  #data-IGD th:nth-child(4),  /* Rencana */
   #data-IGD td:nth-child(5),
   #data-IGD th:nth-child(5),  /* Timestamp */
   #data-IGD td:nth-child(6),
