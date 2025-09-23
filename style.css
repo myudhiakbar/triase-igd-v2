@@ -105,9 +105,9 @@
   }
 
   /* Hover row */
-  table.dataTable tbody tr:hover {
+  /* table.dataTable tbody tr:hover {
     background-color: #e9f5f2 !important;
-  }
+  } */
 
   /* Kolom ID, Nama Pasien, dan Timestamp rata tengah */
   #data-IGD td:nth-child(1),
