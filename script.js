@@ -9,7 +9,8 @@
         success: "success",
         error: "error",
         warning: "warning",
-        info: "info"
+        info: "info",
+        loading: "info"
       };
 
       return swal({
@@ -17,7 +18,20 @@
         text: text,
         icon: icons[type] || "info",
         buttons: false,
-        timer: duration
+        timer: type === "loading" ? null : duration,
+        closeOnClickOutside: type !== "loading",
+        closeOnEsc: type !== "loading"
+      });
+    }
+
+    // === Helper SweetAlert (Konfirmasi) ===
+    function showSwalConfirm(title, text, confirmText = "Ya", cancelText = "Batal") {
+      return swal({
+        title: title,
+        text: text,
+        icon: "warning",
+        buttons: [cancelText, confirmText],
+        dangerMode: true
       });
     }
     
@@ -52,6 +66,7 @@
         },
       ],
       rowId: "id",
+      pageLength: 6, // tampilkan 6 data per halaman
 
       // rowCallback untuk memberi class khusus
       rowCallback: function(row, data) {
@@ -75,8 +90,6 @@
         ]
       },
 
-      pageLength: 6, // tampilkan 6 data per halaman
-
       columnDefs: [
         { targets: 0, className: "desktop" },   // ID tampil di desktop
         { responsivePriority: 1, targets: 1 },  // Nama wajib tampil
@@ -87,6 +100,16 @@
         { targets: 6, className: "desktop" }   // Aksi
       ],
     });
+
+      // ✅ Reload Table dengan SweetAlert
+      $("#reloadTable").on("click", function () {
+        showSwal("loading", "Memuat Data Ulang...", "Mohon tunggu sebentar");
+
+        table.ajax.reload(function () {
+          swal.close(); // tutup popup loading
+          showSwal("success", "Berhasil!", "Data pasien berhasil diperbarui", 1500);
+        }, false);
+      });
 
       // Edit Pasien
       $('#data-IGD tbody').on('click', 'button.edit', function () {
@@ -142,14 +165,7 @@
         );
       
         // Tampilkan pesan loading swal
-        swal({
-          title: "Menyimpan...",
-          text: "Mohon tunggu sebentar",
-          buttons: false,
-          closeOnClickOutside: false,
-          closeOnEsc: false,
-          icon: "info"
-        });
+        showSwal("loading", "Menyimpan...", "Mohon tunggu sebentar");
       
         const action = idPasien ? "update" : "insert";
         const payload = {
@@ -189,13 +205,12 @@
       const row = table.row(tr.hasClass('child') ? tr.prev() : tr);
       const data = row.data();
 
-      swal({
-        title: `Hapus pasien ${data.nama}?`,
-        text: "Data yang sudah dihapus tidak bisa dikembalikan!",
-        icon: "warning",
-        buttons: ["Batal", "Ya, Hapus"],
-        dangerMode: true
-      }).then((willDelete) => {
+      showSwalConfirm(
+      `Hapus pasien ${data.nama}?`,
+      "Data yang sudah dihapus tidak bisa dikembalikan!",
+      "Ya, Hapus",
+      "Batal"
+      ).then((willDelete) => {
         if (willDelete) {
           $.ajax({
             url: `${BASE_URL}?action=delete`,
