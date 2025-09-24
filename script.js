@@ -1,26 +1,39 @@
-    // ✅ Set default global DataTables
+    // Set default global DataTables
     $.extend(true, $.fn.dataTable.defaults, {
       order: [[0, "desc"]] // urutkan kolom ke-1 DESC
     });
 
     // === Helper SweetAlert ===
-    function showSwal(type, title, text, duration = 2000) {
+    function showSwal(type, title, text, duration = 2000, spinnerColor = "#09f") {
       const icons = {
         success: "success",
         error: "error",
         warning: "warning",
-        info: "info",
-        loading: "info"
+        info: "info"
       };
+
+      if (type === "loading") {
+        return swal({
+          title: title,
+          text: text,
+          buttons: false,
+          closeOnClickOutside: false,
+          closeOnEsc: false,
+          content: {
+            element: "div",
+            attributes: { innerHTML: '<div class="swal-spinner" style="border-left-color:${spinnerColor}"></div>' }
+          }
+        });
+      }
 
       return swal({
         title: title,
         text: text,
         icon: icons[type] || "info",
         buttons: false,
-        timer: type === "loading" ? null : duration,
-        closeOnClickOutside: type !== "loading",
-        closeOnEsc: type !== "loading"
+        timer: duration,
+        closeOnClickOutside: true,
+        closeOnEsc: true
       });
     }
 
@@ -31,6 +44,24 @@
         text: text,
         icon: "warning",
         buttons: [cancelText, confirmText],
+        dangerMode: true
+      });
+    }
+
+    function showSwalConfirmSingle(title, text, confirmText = "OK") {
+      return swal({
+        title: title,
+        text: text,
+        icon: "warning",
+        buttons: {
+          confirm: {
+            text: confirmText,
+            value: true,
+            visible: true,
+            className: "btn-danger",
+            closeModal: true
+          }
+        },
         dangerMode: true
       });
     }
@@ -101,9 +132,9 @@
       ],
     });
 
-      // ✅ Reload Table dengan SweetAlert
+      // Reload Table dengan SweetAlert
       $("#reloadTable").on("click", function () {
-        showSwal("loading", "Memuat Data Ulang...", "Mohon tunggu sebentar");
+        showSwal("loading", "Memuat Data Ulang...", "Sedang ambil data terbaru", null, "orange");
 
         table.ajax.reload(function () {
           swal.close(); // tutup popup loading
@@ -125,6 +156,11 @@
         $("#status").val(data.status || "");
         $("#fieldRencana, #fieldStatus").removeClass("d-none");
         $('#myModal').modal('show');
+      });
+
+      // Cegah modal tertutup karena klik luar
+      $('#myModal').modal({
+        backdrop: 'static'
       });
 
       // Reset modal title saat ditutup
@@ -155,7 +191,7 @@
         const status = $('#status').val().trim();
       
         if (!namaPasien || !catatan) {
-          showSwal("error", "Gagal!", "Mohon lengkapi kolom yang dibintangi ya!");
+          showSwal("error", "Gagal!", "Nama pasien dan catatan wajib diisi ya !");
           return;
         }
 
@@ -165,7 +201,7 @@
         );
       
         // Tampilkan pesan loading swal
-        showSwal("loading", "Menyimpan...", "Mohon tunggu sebentar");
+        showSwal("loading", "Menyimpan...", "Data sedang disimpan", null, "green");
       
         const action = idPasien ? "update" : "insert";
         const payload = {
@@ -212,6 +248,8 @@
       "Batal"
       ).then((willDelete) => {
         if (willDelete) {
+          showSwal("loading", "Mohon tunggu...", "Sedang menghapus data pasien", null, "red");
+
           $.ajax({
             url: `${BASE_URL}?action=delete`,
             type: "GET",
