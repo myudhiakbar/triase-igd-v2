@@ -3,7 +3,7 @@
       order: [[0, "desc"]] // urutkan kolom ke-1 DESC
     });
 
-    // === Helper SweetAlert ===
+    // === Helper SweetAlert2 ===
     function showSwal(type, title, text, duration = 2000, spinnerColor = "#09f") {
       const icons = {
         success: "success",
@@ -13,63 +13,51 @@
       };
 
       if (type === "loading") {
-        return swal({
-          title: title,
-          text: text,
-          buttons: false,
-          closeOnClickOutside: false,
-          closeOnEsc: false,
-          content: {
-            element: "div",
-            attributes: { innerHTML: '<div class="swal-spinner" style="border-left-color:${spinnerColor}"></div>' }
-          }
-        });
-      }
-
-      return swal({
+      Swal.fire({
         title: title,
-        text: text,
-        icon: icons[type] || "info",
-        buttons: false,
-        timer: duration,
-        closeOnClickOutside: true,
-        closeOnEsc: true
+        text: text || "",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
       });
+      return;
     }
 
-    // === Helper SweetAlert (Konfirmasi) ===
+    return Swal.fire({
+      icon: icons[type] || "info",
+      title: title,
+      text: text,
+      showConfirmButton: false,
+      timer: duration,
+      allowOutsideClick: true,
+      allowEscapeKey: true
+    });
+    }
+
+    // === Helper SweetAlert2 (Konfirmasi Yes/No) ===
     function showSwalConfirm(title, text, confirmText = "Ya", cancelText = "Batal") {
-      return swal({
-        title: title,
-        content: {
-          element: "p",
-          attributes: {
-            innerHTML: text,
-            style: "text-align:center;"
-          }
-        },
-        icon: "warning",
-        buttons: [cancelText, confirmText],
-        dangerMode: true
-      });
-    }
-
-    function showSwalConfirmSingle(title, text, confirmText = "OK") {
-      return swal({
+      return Swal.fire({
         title: title,
         text: text,
         icon: "warning",
-        buttons: {
-          confirm: {
-            text: confirmText,
-            value: true,
-            visible: true,
-            className: "btn-danger",
-            closeModal: true
-          }
-        },
-        dangerMode: true
-      });
+        showCancelButton: true,
+        confirmButtonText: confirmText,
+        cancelButtonText: cancelText,
+        reverseButtons: true
+      }).then((result) => result.isConfirmed);
+    }
+
+    // === Helper SweetAlert2 (Konfirmasi OK Only) ===
+    function showSwalConfirmSingle(title, text, confirmText = "OK") {
+      return Swal.fire({
+        title: title,
+        text: text,
+        icon: "warning",
+        confirmButtonText: confirmText
+      }).then((result) => result.isConfirmed);
     }
     
     // JS HTML TO SPREADSHEET
@@ -143,7 +131,7 @@
         showSwal("loading", "Memuat Data Ulang...", "Sedang ambil data terbaru", null, "orange");
 
         table.ajax.reload(function () {
-          swal.close(); // tutup popup loading
+          Swal.close(); // tutup loading
           showSwal("success", "Berhasil!", "Data pasien berhasil diperbarui", 1500);
         }, false);
       });
@@ -252,8 +240,8 @@
       "Data yang sudah dihapus tidak bisa dikembalikan!",
       "Ya, Hapus",
       "Batal"
-      ).then((willDelete) => {
-        if (willDelete) {
+      ).then((confirmed) => {
+        if (confirmed) {
           showSwal("loading", "Mohon tunggu...", "Sedang menghapus data pasien", null, "red");
 
           $.ajax({
