@@ -41,7 +41,13 @@
     function showSwalConfirm(title, text, confirmText = "Ya", cancelText = "Batal") {
       return swal({
         title: title,
-        text: text,
+        content: {
+          element: "p",
+          attributes: {
+            innerHTML: text,
+            style: "text-align:center;"
+          }
+        },
         icon: "warning",
         buttons: [cancelText, confirmText],
         dangerMode: true
