@@ -266,6 +266,9 @@
     });
     });
 
+    // Copyright Otomatis
+    document.getElementById("year").textContent = new Date().getFullYear();
+
     // === Time Update ===
     function updateWaktu() {
       const now = new Date();
