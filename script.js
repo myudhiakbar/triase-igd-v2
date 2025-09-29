@@ -100,8 +100,13 @@
         } else {
           $(row).removeClass("row-rencana-isi"); // kalau kosong hapus class
         }
+        if (data.status && data.status.toLowerCase() === "sudah") {
+          $(row).addClass("row-status-sudah");
+        } else {
+          $(row).removeClass("row-status-sudah");
+        }
         if (data.status && data.status.toLowerCase() === "batal") {
-        $(row).addClass("row-status-batal");
+          $(row).addClass("row-status-batal");
         } else {
           $(row).removeClass("row-status-batal");
         }
@@ -185,7 +190,12 @@
         const status = $('#status').val().trim();
       
         if (!namaPasien || !catatan) {
-          showSwal("error", "Gagal!", "Nama pasien dan catatan wajib diisi ya !");
+          Swal.fire({
+            icon: "error",
+            title: "Gagal!",
+            text: "Nama pasien dan catatan wajib diisi ya!",
+            confirmButtonText: "OK"
+          });
           return;
         }
 
