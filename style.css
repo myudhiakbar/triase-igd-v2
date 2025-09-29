@@ -114,6 +114,10 @@
     background-color: #caf8ca !important;
   }
 
+  .row-status-sudah {
+    background-color: #caf8ca !important;
+  }
+
   .row-status-batal {
   background-color: #ffe6e6 !important;
   }
