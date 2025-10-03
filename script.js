@@ -124,9 +124,9 @@
         { targets: 0, className: "desktop" },   // ID tampil di desktop
         { responsivePriority: 1, targets: 1 },  // Nama wajib tampil
         { responsivePriority: 2, targets: 2 },  // Catatan wajib tampil
-        { responsivePriority: 3, targets: 5 },  // Status
         { targets: 3, className: "desktop" },  // Rencana
         { targets: 4, className: "desktop" },  // Timestamp
+        { targets: 5, className: "desktop" },  // Status
         { targets: 6, className: "desktop" }   // Aksi
         ],
       });
