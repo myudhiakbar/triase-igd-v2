@@ -62,7 +62,7 @@
     
     // JS HTML TO SPREADSHEET
     $(document).ready(function () {
-      const BASE_URL = "https://script.google.com/macros/s/AKfycbwrtBHwjpS9Ise8WIyZthtneG7Px_4YQCLTt-7Hb4mJtYILCJ6GKIZ29DhIlGhsoIYNVg/exec";
+      const BASE_URL = "https://script.google.com/macros/s/AKfycbzdbGEVZW2U1a9iktQK-b3apmLu0yIXsIQagejZSp77HMWgxhQGEZRDskvK8nUnEHTV/exec";
 
       const table = $("#data-IGD").DataTable({
       ajax: BASE_URL + "?action=get-pasien",
@@ -124,12 +124,12 @@
         { targets: 0, className: "desktop" },   // ID tampil di desktop
         { responsivePriority: 1, targets: 1 },  // Nama wajib tampil
         { responsivePriority: 2, targets: 2 },  // Catatan wajib tampil
+        { responsivePriority: 3, targets: 5 },  // Status
         { targets: 3, className: "desktop" },  // Rencana
         { targets: 4, className: "desktop" },  // Timestamp
-        { targets: 5, className: "desktop" },  // Status
         { targets: 6, className: "desktop" }   // Aksi
-      ],
-    });
+        ],
+      });
 
       // Reload Table dengan SweetAlert
       $("#reloadTable").on("click", function () {
@@ -166,7 +166,6 @@
       $('#myModal').on('hidden.bs.modal', () => {
         $('#formPasien')[0].reset();
         $('#idPasien').val('');
-        $('#waktuForm').val(''); // reset waktuForm
         $('#myModal .modal-title').text('Tambah Pasien');
         $("#fieldRencana, #fieldStatus").addClass("d-none"); // ikut reset
       });
@@ -237,43 +236,173 @@
           .always(() => {
             $btn.prop("disabled", false).html("Simpan Data");
           });
-      });
+        });
 
       // Hapus Pasien
       $('#data-IGD tbody').on('click', 'button.hapus', function () {
-      const tr = $(this).closest('tr');
-      const row = table.row(tr.hasClass('child') ? tr.prev() : tr);
-      const data = row.data();
+        const tr = $(this).closest('tr');
+        const row = table.row(tr.hasClass('child') ? tr.prev() : tr);
+        const data = row.data();
 
-      showSwalConfirm(
-      `Hapus pasien ${data.nama}?`,
-      "Data yang sudah dihapus tidak bisa dikembalikan!",
-      "Ya, Hapus",
-      "Batal"
-      ).then((confirmed) => {
-        if (confirmed) {
-          showSwal("loading", "Mohon tunggu...", "Sedang menghapus data pasien", null, "red");
+        showSwalConfirm(
+        `Hapus pasien ${data.nama}?`,
+        "Data yang sudah dihapus tidak bisa dikembalikan!",
+        "Ya, Hapus",
+        "Batal"
+        ).then((confirmed) => {
+          if (confirmed) {
+            showSwal("loading", "Mohon tunggu...", "Sedang menghapus data pasien", null, "red");
 
-          $.ajax({
-            url: `${BASE_URL}?action=delete`,
-            type: "GET",
-            data: { id: data.id },
-            dataType: "json"
-          })
-            .done((result) => {
-              if (result.success) {
-                showSwal("success", "Sukses!", result.message, 1500);
-                table.ajax.reload();
-              } else {
-                showSwal("error", "Gagal!", result.message);
-              }
+            $.ajax({
+              url: `${BASE_URL}?action=delete`,
+              type: "GET",
+              data: { id: data.id },
+              dataType: "json"
             })
-            .fail(() => {
-              showSwal("error", "Error!", "Gagal menghubungi server.");
+              .done((result) => {
+                if (result.success) {
+                  showSwal("success", "Sukses!", result.message, 1500);
+                  table.ajax.reload();
+                } else {
+                  showSwal("error", "Gagal!", result.message);
+                }
+              })
+              .fail(() => {
+                showSwal("error", "Error!", "Gagal menghubungi server.");
+              });
+          }
+        });
+      });
+
+      // === Inline Editing (dblclick cell) ===
+      $('#data-IGD tbody').on('dblclick', 'td', function () {
+        const cell = table.cell(this);
+        const colIdx = cell.index().column;
+        const rowData = table.row(this).data();
+
+        // Batasi kolom edit
+        if ([3, 5].includes(colIdx)) {
+          const oldValue = cell.data();
+
+          // === Jika kolom STATUS → dropdown
+          if (colIdx === 5) {
+            const options = ["", "Sudah", "Batal"];
+            const $select = $('<select class="form-control form-control-sm"></select>');
+            options.forEach(opt => {
+              $select.append(
+                `<option value="${opt}" ${opt === oldValue ? "selected" : ""}>${opt}</option>`
+              );
             });
+            $(this).html($select);
+            $select.focus();
+
+            const finishEditSelect = () => {
+            const newValue = $select.val();
+            if (newValue !== oldValue) {
+              updateCell(rowData.id, "status", newValue, cell, oldValue);
+            } else {
+              cell.data(oldValue).draw(false);
+            }
+            $(document).off("click.outsideSelect keydown.cancelSelect");
+            };
+
+            const cancelEditSelect = () => {
+              cell.data(oldValue).draw(false); // rollback
+              $(document).off("click.outsideSelect keydown.cancelSelect");
+            };
+
+            $select.on("change", finishEditSelect);
+
+            // klik di luar → update
+            $(document).on("click.outsideSelect", function (e) {
+              if (!$select.is(e.target) && $select.has(e.target).length === 0) {
+                finishEditSelect();
+              }
+            });
+
+            // Esc → batal
+            $(document).on("keydown.cancelSelect", function (e) {
+              if (e.key === "Escape") {
+                cancelEditSelect();
+              }
+            });
+
+            } else {
+              // === Kolom text biasa (rencana)
+              const $input = $('<textarea class="form-control form-control-sm">').val(oldValue);
+              $(this).html($input);
+              $input.focus();
+
+              // Auto resize tinggi textarea
+              $input.on("input", function () {
+                this.style.height = "auto";   // reset dulu
+                this.style.height = (this.scrollHeight) + "px"; // tinggi sesuai isi
+              });
+
+              // Flag untuk dibatalkan pakai ESC
+              let isCancelled = false;
+
+              const finishEditInput = () => {
+                if (isCancelled) return;
+                const newValue = $input.val().trim();
+                if (newValue !== oldValue) {
+                  const fieldMap = { 3: "rencana" };
+                  updateCell(rowData.id, fieldMap[colIdx], newValue, cell, oldValue);
+                } else {
+                  cell.data(oldValue).draw(false);
+                }
+                $(document).off("click.outsideInput keydown.cancelInput");
+              };
+
+            const cancelEditInput = () => {
+              isCancelled = true;
+              cell.data(oldValue).draw(false); // rollback
+              $(document).off("click.outsideInput keydown.cancelInput");
+              $input.off("blur");
+            };
+
+            $input.on("blur", finishEditInput);
+
+            // klik di luar → update
+            $(document).on("click.outsideInput", function (e) {
+              if (!$input.is(e.target) && $input.has(e.target).length === 0) {
+                finishEditInput();
+              }
+            });
+
+            // Esc → batal
+            $(document).on("keydown.cancelInput", function (e) {
+              if (e.key === "Escape") {
+                cancelEditInput();
+              }
+            });
+          }
         }
       });
-    });
+
+      // === Fungsi update ke server ===
+      function updateCell(id, field, newValue, cell, oldValue) {
+        showSwal("loading", "Menyimpan...", "Sedang update data");
+        $.ajax({
+          url: `${BASE_URL}?action=update`,
+          type: "GET",
+          data: { id: id, [field]: newValue },
+          dataType: "json"
+        })
+          .done((result) => {
+            if (result.success) {
+              showSwal("success", "Sukses!", result.message, 1500);
+              cell.data(newValue).draw(false);
+            } else {
+              showSwal("error", "Gagal!", result.message);
+              cell.data(oldValue).draw(false);
+            }
+          })
+          .fail(() => {
+            showSwal("error", "Error!", "Gagal menghubungi server.");
+            cell.data(oldValue).draw(false);
+          });
+      }
     });
 
     // Copyright Otomatis
