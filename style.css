@@ -223,17 +223,7 @@
     }
 
     /* Mobile (≤768px) */
-    @media (max-width: 768px) {
-      #data-IGD_wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch; /* biar enak di-swipe */
-      }
-
-      #data-IGD {
-        min-width: 600px; /* biar tabel tetap terbaca, bisa kamu atur sesuai kebutuhan */
-        display: block;
-      }
-    
+    @media (max-width: 768px) {  
       /* Kolom Catatan full width */
       #data-IGD td:nth-child(3) {
         max-width: 100% !important;
