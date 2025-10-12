@@ -91,7 +91,7 @@
         },
       ],
       rowId: "id",
-      pageLength: 6, // tampilkan 6 data per halaman
+      pageLength: 8, // tampilkan 6 data per halaman
 
       // rowCallback untuk memberi class khusus
       rowCallback: function(row, data) {
@@ -281,7 +281,7 @@
         const rowData = table.row(this).data();
 
         // Batasi kolom edit
-        if ([3, 5].includes(colIdx)) {
+        if ([1, 2, 3, 5].includes(colIdx)) {
           const oldValue = cell.data();
 
           // === Jika kolom STATUS → dropdown
@@ -333,6 +333,18 @@
               $(this).html($input);
               $input.focus();
 
+              // Atur tinggi awal sesuai isi (auto-resize)
+              $input.css({
+                "overflow": "hidden",
+                "resize": "none",          // biar tidak bisa di-drag manual
+                "min-height": "38px",      // tinggi minimum biar tetap rapi
+                "line-height": "1.4"
+              });
+
+              // Hitung tinggi awal berdasarkan isi lama
+              $input[0].style.height = "auto";
+              $input[0].style.height = ($input[0].scrollHeight) + "px";
+
               // Auto resize tinggi textarea
               $input.on("input", function () {
                 this.style.height = "auto";   // reset dulu
@@ -346,7 +358,7 @@
                 if (isCancelled) return;
                 const newValue = $input.val().trim();
                 if (newValue !== oldValue) {
-                  const fieldMap = { 3: "rencana" };
+                  const fieldMap = { 1: "nama", 2: "catatan", 3: "rencana" };
                   updateCell(rowData.id, fieldMap[colIdx], newValue, cell, oldValue);
                 } else {
                   cell.data(oldValue).draw(false);
