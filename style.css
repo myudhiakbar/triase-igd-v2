@@ -118,7 +118,7 @@
 
     /* Kondisi Baris berubah warna */
     .row-rencana-isi {
-      background-color: #caf8ca !important;
+      background-color: #f8f4ca !important;
     }
 
     .row-status-sudah {
@@ -126,7 +126,7 @@
     }
 
     .row-status-batal {
-    background-color: #ffe6e6 !important;
+    background-color: #f8caca !important;
     }
 
     /* Hover row */
@@ -179,11 +179,20 @@
       margin: 2px;
     }
 
-    /*   button.hapus {
-    display: true !important;
-    } */
-
     /* === Responsive Breakpoints === */
+
+    /* Desktop*/
+    @media (min-width: 1025px) {
+      #data-IGD td:nth-child(3) {
+        white-space: normal !important; /* Enter jadi spasi */
+        word-break: break-word;
+        line-height: 1.6;
+      }
+
+      button.hapus {
+      display: none !important;
+      }
+    }
 
     /* Tablet (769px – 1024px) */
     @media (min-width: 769px) and (max-width: 1024px) {
