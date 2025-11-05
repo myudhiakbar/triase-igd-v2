@@ -21,7 +21,8 @@
         showConfirmButton: false,
         didOpen: () => {
           Swal.showLoading();
-        }
+        },
+        hideClass: { popup: 'animate__animated animate__zoomOut' }
       });
       return;
     }
@@ -33,7 +34,8 @@
       showConfirmButton: false,
       timer: duration,
       allowOutsideClick: true,
-      allowEscapeKey: true
+      allowEscapeKey: true,
+      hideClass: { popup: 'animate__animated animate__zoomOut' }
     });
     }
 
@@ -46,7 +48,8 @@
         showCancelButton: true,
         confirmButtonText: confirmText,
         cancelButtonText: cancelText,
-        reverseButtons: true
+        reverseButtons: true,
+        hideClass: { popup: 'animate__animated animate__zoomOut' }
       }).then((result) => result.isConfirmed);
     }
 
@@ -56,7 +59,8 @@
         title: title,
         text: text,
         icon: "warning",
-        confirmButtonText: confirmText
+        confirmButtonText: confirmText,
+        hideClass: { popup: 'animate__animated animate__zoomOut' }
       }).then((result) => result.isConfirmed);
     }
     
@@ -193,7 +197,8 @@
             icon: "error",
             title: "Gagal!",
             text: "Nama pasien dan catatan wajib diisi ya!",
-            confirmButtonText: "OK"
+            confirmButtonText: "OK",
+            hideClass: { popup: 'animate__animated animate__zoomOut' }
           });
           return;
         }
@@ -464,3 +469,4 @@
 
       return `${tgl} ${bln} ${thn} , ${jam}:${menit}:${detik} WIB`;
     }
+
