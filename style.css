@@ -181,7 +181,7 @@
 
     /* === Responsive Breakpoints === */
 
-    /* Desktop*/
+    /* Desktop */
     @media (min-width: 1025px) {
       #data-IGD td:nth-child(3) {
         white-space: normal !important; /* Enter jadi spasi */
@@ -189,9 +189,9 @@
         line-height: 1.6;
       }
 
-      button.hapus {
+      /* button.hapus {
       display: none !important;
-      }
+      } */
     }
 
     /* Tablet (769px – 1024px) */
@@ -273,3 +273,4 @@
         padding: 1rem;
       }
     }
+
